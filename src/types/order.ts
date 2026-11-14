@@ -18,6 +18,8 @@ export interface OrderItem {
   productCode: string;
   productType: ProductType;
   fanRodVariant: OrderItemVariantReference | null;
+  /** Latest date this exact product/variant was added to the current order. */
+  latestOrderDate?: string;
   orderedQty: number;
   dispatchedQty: number;
   cancelledQty: number;

@@ -37,6 +37,15 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: session } = authClient.useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const reviewMode = process.env.NEXT_PUBLIC_DATA_PROVIDER !== "postgres";
+  const mobileRestrictedRoute = pathname === "/dealers/new"
+    || /^\/dealers\/[^/]+\/edit$/.test(pathname)
+    || pathname === "/products/new"
+    || pathname === "/products/categories"
+    || pathname.startsWith("/products/fan-rod/")
+    || /^\/products\/[^/]+\/edit$/.test(pathname)
+    || pathname === "/orders/new"
+    || /^\/orders\/[^/]+\/(edit|dispatch|reduce)$/.test(pathname)
+    || pathname.startsWith("/settings/");
   if (pathname === "/login") return <>{children}</>;
 
   return (
@@ -73,7 +82,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Link href="/settings/account" className="text-xs font-semibold text-blue-700">My Account</Link><button className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50" onClick={async()=>{await authClient.signOut();router.push("/login");router.refresh();}}>Logout</button>
           </div>
         </div>
-        {children}
+        <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm font-semibold text-blue-900 md:hidden">Mobile view-only mode · Use a tablet or computer to add, edit, confirm, dispatch or change settings.</div>
+        {mobileRestrictedRoute && <div className="rounded-xl border border-amber-300 bg-amber-50 p-6 text-center md:hidden"><h1 className="text-xl font-bold text-amber-950">This action is not available on mobile</h1><p className="mt-2 text-sm text-amber-900">Mobile access is for viewing reports and records only. Open this page on a tablet or computer to make changes.</p><Link href="/" className="mt-4 inline-flex h-11 items-center rounded-lg bg-slate-900 px-5 font-semibold text-white">Return to Dashboard</Link></div>}
+        <div className={mobileRestrictedRoute ? "hidden md:block" : ""}>{children}</div>
       </main>
     </div>
   );

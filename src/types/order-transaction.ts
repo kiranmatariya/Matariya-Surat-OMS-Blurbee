@@ -58,10 +58,10 @@ export function deriveOrderItems(transactions: OrderTransaction[]): OrderItem[] 
       const current = summary.get(entry.lineKey) ?? {
         id: entry.lineKey, productId: entry.productId, productName: entry.productName,
         productCode: entry.productCode, productType: entry.productType,
-        fanRodVariant: entry.fanRodVariant, orderedQty: 0, dispatchedQty: 0,
+        fanRodVariant: entry.fanRodVariant, latestOrderDate: undefined, orderedQty: 0, dispatchedQty: 0,
         cancelledQty: 0, remarks: entry.remarks,
       };
-      if (transaction.type === "ORDER_ADDITION") current.orderedQty += entry.quantity;
+      if (transaction.type === "ORDER_ADDITION") { current.orderedQty += entry.quantity; current.latestOrderDate = transaction.transactionDate; }
       if (transaction.type === "DISPATCH") current.dispatchedQty += entry.quantity;
       if (transaction.type === "CANCELLATION_REDUCTION") current.cancelledQty += entry.quantity;
       if (transaction.type === "ORDER_ADDITION" && entry.remarks) current.remarks = entry.remarks;

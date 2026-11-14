@@ -36,6 +36,20 @@ textarea {
 }
 
 @media (max-width: 767px) {
+  /* Phones are intentionally view-only. Tablets and computers retain the full workflow. */
+  a[href="/orders/new"],
+  a[href="/dealers/new"],
+  a[href="/products/new"],
+  a[href="/products/categories"],
+  a[href^="/products/fan-rod/"],
+  a[href^="/settings/"],
+  a[href$="/edit"],
+  a[href$="/dispatch"],
+  a[href$="/reduce"],
+  .order-print-page button {
+    display: none !important;
+  }
+
   main h1 {
     font-size: 1.5rem !important;
     line-height: 2rem !important;

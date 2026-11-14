@@ -4,7 +4,7 @@ import type { OrderTransaction } from "@/types/order-transaction";
 
 export interface NormalPlanningRow {
   orderId: string; dealerId: string; dealerName: string; city: string; productId: string;
-  productName: string; productCode: string; unit: string; lastAdditionDate: string;
+  productName: string; productCode: string; category: string; unit: string; lastAdditionDate: string;
   ordered: number; dispatched: number; cancelled: number; pending: number;
   expectedDispatchDate: string; remarks: string;
 }
@@ -21,7 +21,7 @@ function lastAdditionDate(orderId: string, productId: string, transactions: Orde
   return transactions.filter((entry) => entry.orderId === orderId && entry.type === "ORDER_ADDITION" && entry.items.some((item) => item.productId === productId)).reduce((latest, entry) => entry.transactionDate > latest ? entry.transactionDate : latest, fallback);
 }
 
-export function buildPlanningRows(orders: Order[], transactions: OrderTransaction[], productUnits: Map<string, string>) {
+export function buildPlanningRows(orders: Order[], transactions: OrderTransaction[], productUnits: Map<string, string>, productCategories = new Map<string, string>()) {
   const normal: NormalPlanningRow[] = []; const fanRod: FanRodPlanningRow[] = [];
   for (const order of orders.filter((entry) => productionStatuses.has(entry.status))) {
     for (const item of order.items) {
@@ -29,7 +29,7 @@ export function buildPlanningRows(orders: Order[], transactions: OrderTransactio
       if (item.productType === "FAN_ROD" && item.fanRodVariant) {
         fanRod.push({ orderId: order.id, dealerId: order.dealerId, dealerName: order.dealerName, city: order.dealerCity, gaugeId: item.fanRodVariant.gaugeId, gaugeName: item.fanRodVariant.gaugeName, sizeId: item.fanRodVariant.sizeId, sizeName: item.fanRodVariant.sizeName, colourId: item.fanRodVariant.colourId, colourName: item.fanRodVariant.colourName, ordered: item.orderedQty, dispatched: item.dispatchedQty, cancelled: item.cancelledQty, pending });
       } else if (item.productType === "NORMAL") {
-        normal.push({ orderId: order.id, dealerId: order.dealerId, dealerName: order.dealerName, city: order.dealerCity, productId: item.productId, productName: item.productName, productCode: item.productCode, unit: productUnits.get(item.productId) ?? "PCS", lastAdditionDate: lastAdditionDate(order.id, item.productId, transactions, order.orderDate), ordered: item.orderedQty, dispatched: item.dispatchedQty, cancelled: item.cancelledQty, pending, expectedDispatchDate: order.expectedDispatchDate, remarks: item.remarks || order.remarks });
+        normal.push({ orderId: order.id, dealerId: order.dealerId, dealerName: order.dealerName, city: order.dealerCity, productId: item.productId, productName: item.productName, productCode: item.productCode, category: productCategories.get(item.productId) || "Uncategorised", unit: productUnits.get(item.productId) ?? "PCS", lastAdditionDate: lastAdditionDate(order.id, item.productId, transactions, order.orderDate), ordered: item.orderedQty, dispatched: item.dispatchedQty, cancelled: item.cancelledQty, pending, expectedDispatchDate: order.expectedDispatchDate, remarks: item.remarks || order.remarks });
       }
     }
   }

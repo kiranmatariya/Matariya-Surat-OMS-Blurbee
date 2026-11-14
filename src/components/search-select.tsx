@@ -21,6 +21,7 @@ type SearchSelectProps = {
   className?: string;
   "aria-label"?: string;
   onChange: (value: string) => void;
+  onEnter?: (value: string) => void;
 };
 
 export function SearchSelect({
@@ -35,6 +36,7 @@ export function SearchSelect({
   className = "",
   "aria-label": ariaLabel,
   onChange,
+  onEnter,
 }: SearchSelectProps) {
   const generatedId = useId();
   const inputId = id ?? generatedId;
@@ -129,7 +131,10 @@ export function SearchSelect({
     } else if (event.key === "Enter") {
       event.preventDefault();
       const option = filtered[highlight];
-      if (open && option) commit(option.value);
+      if (open && option) {
+        commit(option.value);
+        onEnter?.(option.value);
+      }
       else setOpen(true);
     } else if (event.key === "Tab") {
       const option = filtered[highlight];

@@ -1,5 +1,7 @@
 # Matariya OMS
 
+For a clean production deployment, follow [DEPLOYMENT_HANDOFF.md](./DEPLOYMENT_HANDOFF.md). It keeps GitHub free of credentials and creates a separate empty PostgreSQL installation.
+
 Matariya OMS is a Next.js, TypeScript and Tailwind CSS order-management system for a manufacturing company. It manages dealers, products, one running order per dealer, partial dispatch, reduction history, production-planning views, Fan Rod planning, and packing sheets. Prices and inventory are outside scope.
 
 ## PostgreSQL data design

@@ -322,6 +322,16 @@ function OrderItemEditor({
   onNext: () => void;
 }) {
   const compactClass = "h-9 w-full border-0 bg-transparent px-2 text-sm leading-tight text-slate-900 outline-none focus:bg-blue-50 focus:ring-2 focus:ring-inset focus:ring-blue-500";
+  function focusAfterProduct(selectedValue: string) {
+    window.setTimeout(() => {
+      if (selectedValue.startsWith("FAN_ROD_VARIANT::")) {
+        document.getElementById(`order-quantity-${index}`)?.focus();
+        return;
+      }
+      const variant = document.getElementById(`order-variant-${index}`) as HTMLInputElement | null;
+      (variant && !variant.disabled ? variant : document.getElementById(`order-quantity-${index}`))?.focus();
+    }, 0);
+  }
   return (
     <tr className="border-t border-slate-300 bg-white">
       <td className="border-r border-slate-300 px-2 text-center text-xs font-bold text-slate-500">{index + 1}</td>
@@ -335,11 +345,13 @@ function OrderItemEditor({
           disabled={existingLine?.processed}
           compact
           onChange={(productId) => onProduct(item.id, productId)}
+          onEnter={focusAfterProduct}
         />
       </td>
       <td className="border-r border-slate-300">
         {item.productType === "FAN_ROD" ? (
           <SearchSelect
+            id={`order-variant-${index}`}
             value={item.fanRodVariant ? `${item.fanRodVariant.gaugeId}::${item.fanRodVariant.sizeId}::${item.fanRodVariant.colourId}` : ""}
             options={fanRodVariantOptions}
             placeholder='Type size and colour, e.g. 15 W'
@@ -347,16 +359,17 @@ function OrderItemEditor({
             disabled={existingLine?.processed}
             compact
             onChange={(value) => onFanRodVariant(item, value)}
+            onEnter={() => window.setTimeout(() => document.getElementById(`order-quantity-${index}`)?.focus(), 0)}
           />
         ) : <EmptyCell />}
       </td>
       {showOldPending && <td className="border-r border-slate-300 bg-blue-50 px-3 text-right text-lg font-black text-blue-900">{existingLine ? existingLine.pending.toLocaleString("en-IN") : "—"}</td>}
       <td className="border-r border-slate-300">
-        <input id={`order-quantity-${index}`} aria-label={`Line ${index + 1} ${showOldPending ? "New Order Quantity" : "Quantity"}`} type="number" min={existingLine ? 0 : 1} step="1" value={item.orderedQty} onFocus={(event) => event.currentTarget.select()} onChange={(e) => onUpdate(item.id, { orderedQty: Number(e.target.value) })} className={`${compactClass} text-right text-lg font-bold`} />
+        <input id={`order-quantity-${index}`} aria-label={`Line ${index + 1} ${showOldPending ? "New Order Quantity" : "Quantity"}`} type="number" min={existingLine ? 0 : 1} step="1" value={item.orderedQty} onFocus={(event) => event.currentTarget.select()} onChange={(e) => onUpdate(item.id, { orderedQty: Number(e.target.value) })} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); document.getElementById(`order-remarks-${index}`)?.focus(); } }} className={`${compactClass} text-right text-lg font-bold`} />
       </td>
       {showOldPending && <td className="border-r border-slate-300 bg-emerald-50 px-3 text-right text-lg font-black text-emerald-900">{(item.orderedQty + (existingLine?.pending ?? 0)).toLocaleString("en-IN")}</td>}
       <td className="border-r border-slate-300">
-        <input aria-label={`Line ${index + 1} Remarks`} value={item.remarks} onChange={(e) => onUpdate(item.id, { remarks: e.target.value })} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onNext(); } }} placeholder="Packing or item notes" className={compactClass} />
+        <input id={`order-remarks-${index}`} aria-label={`Line ${index + 1} Remarks`} value={item.remarks} onChange={(e) => onUpdate(item.id, { remarks: e.target.value })} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); onNext(); } }} placeholder="Packing or item notes" className={compactClass} />
       </td>
       <td className="text-center">{existingLine ? <span className={`text-[10px] font-bold uppercase ${existingLine.processed ? "text-amber-700" : "text-emerald-700"}`}>{existingLine.processed ? "History locked" : "Editable"}</span> : <button type="button" onClick={onRemove} className="rounded px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50">Remove</button>}</td>
     </tr>
